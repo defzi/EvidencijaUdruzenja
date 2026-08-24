@@ -1,0 +1,48 @@
+/* CSS Document - Evidencija Udruzenja */
+
+body{
+	vertical-align: middle;
+	margin:0px;
+	padding:0px;
+	background:#EAF2FB;
+	font-family: "Trebuchet MS", Arial, sans-serif;
+}
+p{margin:0px; padding:0px;}
+img{border:0px;}
+table {
+    border-collapse:collapse;
+}
+table.no-spacing {
+  border-spacing:0;
+  border-collapse: collapse;
+}
+
+.banner{
+	background-image: url('../images/Zrenjanin.jpg');
+	background-size: cover;
+	background-position: center;
+	background-color: #003366;
+	padding:40px 0;
+}
+.tp_txtplay{ font:bold 32px "Trebuchet MS"; color:#FFFFFF; text-decoration:none;}
+.tp_txtcss{ font:bold 18px "Trebuchet MS"; color:#B7F3FE; }
+
+a:link { text-decoration:none; }
+a:visited { text-decoration:none; }
+a:hover { text-decoration:underline; background-color: #B7F3FE; }
+a:active { }
+
+input[type=text], input[type=password], input[type=date], select {
+	padding:4px;
+	border:1px solid #8AC5E5;
+}
+input[type=submit]{
+	background-color:#003366;
+	color:white;
+	border:none;
+	padding:6px 14px;
+	cursor:pointer;
+}
+input[type=submit]:hover{
+	background-color:#00509e;
+}
