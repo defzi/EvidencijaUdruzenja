@@ -1,21 +1,48 @@
 <?php
+
 session_start();
-$korisnik=$_SESSION["korisnik"];
-if (!isset($korisnik))
+
+if (
+    !isset($_SESSION["korisnik"])
+    || !isset($_SESSION["status"])
+)
 {
-	header('Location:index.php');
+    header('Location:index.php');
+    exit();
 }
 
+if ($_SESSION["status"] != "admin")
+{
+    header('Location:udruzenjaLista.php');
+    exit();
+}
+
+$korisnik = $_SESSION["korisnik"];
+
 require "klase/BaznaKonekcija.php";
-$KonekcijaObject = new Konekcija("klase/BaznaParametriKonekcije.xml");
+
+$KonekcijaObject = new Konekcija(
+    "klase/BaznaParametriKonekcije.xml"
+);
+
 $KonekcijaObject->connect();
 
 require "klase/BaznaTabela.php";
 require "klase/DBKategorija.php";
-$KategorijaObject = new DBKategorija($KonekcijaObject, "Kategorija");
+
+$KategorijaObject = new DBKategorija(
+    $KonekcijaObject,
+    "Kategorija"
+);
+
 $KategorijaObject->UcitajKolekcijuSvihKategorija();
-$KolekcijaZapisa= $KategorijaObject->Kolekcija;
-$UkupanBrojZapisa= $KategorijaObject->BrojZapisa;
+
+$KolekcijaZapisa =
+    $KategorijaObject->Kolekcija;
+
+$UkupanBrojZapisa =
+    $KategorijaObject->BrojZapisa;
+
 ?>
 
 <!DOCTYPE html>

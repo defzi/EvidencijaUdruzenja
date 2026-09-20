@@ -1,5 +1,14 @@
 <?php
+
 session_start();
+
+if (!isset($_SESSION["korisnik"]))
+{
+    header('Location:index.php');
+    exit();
+}
+
+$korisnik = $_SESSION["korisnik"];
 session_unset();
 session_destroy();
 

@@ -22,7 +22,21 @@ session_start();
 <tr>
 <td style="width:1%;"></td>
 <td style="width:15%;padding:0" valign="top">
-<?php include 'delovi/menilevoadmin.php';?>
+
+<?php
+if (
+    isset($_SESSION["status"])
+    && $_SESSION["status"] == "admin"
+)
+{
+    include 'delovi/menilevoadmin.php';
+}
+else
+{
+    include 'delovi/menilevo.php';
+}
+
+?>
 </td>
 <td style="width:1%;"></td>
 <td style="width:80%;padding:0" valign="top">

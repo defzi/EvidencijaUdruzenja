@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<poslovnaPravila>
+
+    <udruzenje>
+    <nazivMinDuzina>2</nazivMinDuzina>
+    <nazivMaxDuzina>60</nazivMaxDuzina>
+
+    <adresaMinDuzina>3</adresaMinDuzina>
+    <adresaMaxDuzina>60</adresaMaxDuzina>
+
+    <gradMinDuzina>2</gradMinDuzina>
+    <gradMaxDuzina>30</gradMaxDuzina>
+
+    <dozvoliBuduciDatum>NE</dozvoliBuduciDatum>
+    </udruzenje>
+
+    <pretraga>
+    <poljeFiltera>Grad</poljeFiltera>
+    <minimalnaDuzinaFiltera>2</minimalnaDuzinaFiltera>
+    </pretraga>
+
+</poslovnaPravila>

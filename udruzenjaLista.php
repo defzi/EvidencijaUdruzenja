@@ -1,71 +1,150 @@
 <?php
+
 session_start();
-$korisnik=$_SESSION["korisnik"];
-if (!isset($korisnik))
+
+
+// Provera korisnika
+
+if (!isset($_SESSION["korisnik"]))
 {
-	header('Location:index.php');
+    header('Location:index.php');
+    exit();
 }
 
-require "klase/BaznaKonekcija.php";
-require "klase/BaznaTabela.php";
-$KonekcijaObject = new Konekcija('klase/BaznaParametriKonekcije.xml');
+$korisnik = $_SESSION["korisnik"];
+
+
+// Uključivanje klasa
+
+require_once "klase/BaznaKonekcija.php";
+require_once "klase/BaznaTabela.php";
+require_once "klase/DBUdruzenjaV.php";
+require_once "klase/UdruzenjaLogika.php";
+
+
+// Povezivanje s bazom
+
+$KonekcijaObject = new Konekcija(
+    'klase/BaznaParametriKonekcije.xml'
+);
+
 $KonekcijaObject->connect();
+
+
+// Početne vrednosi
+
+$filter = null;
+$greskaFiltera = null;
+$poljeFiltera = "Grad";
+
+
+// Provera povezivanja
+
 if ($KonekcijaObject->konekcijaDB)
 {
-	require "klase/DBUdruzenjaV.php";
-	$UdruzenjaViewObject = new DBUdruzenja($KonekcijaObject,"Udruzenja");
-	if (isset($_GET['filtriraj']))
-	{
-		$filter=$_GET['filter'];
-		$UdruzenjaViewObject->DajSvePodatkeOUdruzenjima($filter);
-	}
-	else
-	{
-		$filter=null;
-		$UdruzenjaViewObject->DajSvePodatkeOUdruzenjima($filter);
-	}
+
+    // Sadrži klasu DBUdruzenja koja radi s pogledom PodaciUdruzenja
+
+    $UdruzenjaViewObject = new DBUdruzenja(
+        $KonekcijaObject,
+        "Udruzenja"
+    );
+
+
+    try
+    {
+
+        // Kreiranje logike preko poslovne logike
+
+        $UdruzenjaLogika = new UdruzenjaLogika(
+            $UdruzenjaViewObject
+        );
+
+
+        // Kriterijum filtera iz XML fajla
+
+        $poljeFiltera =
+            $UdruzenjaLogika
+                ->DajPoljeFiltera();
+
+
+        // Pritisnuto je dugme za filtriranje
+
+        if (isset($_GET['filtriraj']))
+        {
+            $filter = isset($_GET['filter'])
+                ? trim($_GET['filter'])
+                : '';
+
+            // Provera filtera preko logike
+
+            $greskaFiltera =
+                $UdruzenjaLogika
+                    ->ProveriFilter(
+                        $filter
+                    );
+
+
+            // Ako nije ispravan filter, prikazujemo sve
+
+            if ($greskaFiltera != null)
+            {
+                $filter = null;
+
+                $UdruzenjaViewObject
+                    ->DajSvePodatkeOUdruzenjima(
+                        null,
+                        $poljeFiltera
+                    );
+            }
+
+            // U slučaju ako je filter ispravljen
+
+            else
+            {
+                $UdruzenjaViewObject
+                    ->DajSvePodatkeOUdruzenjima(
+                        $filter,
+                        $poljeFiltera
+                    );
+            }
+        }
+
+
+        // Ako nema filtriranja, prikazuju se svi podaci
+
+        else
+        {
+            $UdruzenjaViewObject
+                ->DajSvePodatkeOUdruzenjima(
+                    null,
+                    $poljeFiltera
+                );
+        }
+    }
+    catch (Exception $e)
+    {
+        $greskaFiltera =
+            $e->getMessage();
+
+        // Ako se poslovna pravila ne mogu učitati, pokušavamo da prikažemo sve podatke.
+
+        $UdruzenjaViewObject
+            ->DajSvePodatkeOUdruzenjima(
+                null,
+                "Grad"
+            );
+    }
 }
 else
 {
-	echo "Neuspešna konekcija!";
+    $greskaFiltera =
+        "Nije moguće uspostaviti konekciju sa bazom podataka.";
 }
+
+
+// Izvlačimo prikaz stranice iz HTML-a iz drugog fajla 
+
+include 'delovi/udruzenjaListaPrikaz.php';
+
 ?>
-
-<!DOCTYPE html>
-<html lang="sr-RS">
-<meta charset="UTF-8">
-<head>
-<title>Evidencija Udruženja</title>
-<link rel="stylesheet" type="text/css" href="css/style.css" media="screen">
-</head>
-<body>
-
-<table class="no-spacing" style="width:100%; padding:0" align="center" cellspacing="0" cellpadding="0" border="0">
-
-<?php include 'delovi/zaglavljewelcome.php';?>
-
-<tr style="padding:0px;">
-<td style="width:10%;"></td>
-<td align="center" valign="middle" style="width:80%; padding:0">
-<table style="width:100%; padding:0" align="center" cellspacing="0" cellpadding="0" border="0" bgcolor="#003366">
-<tr>
-<td style="width:1%;"></td>
-<td style="width:15%;padding:0" valign="top">
-<?php include 'delovi/menilevoadmin.php';?>
-</td>
-<td style="width:1%;"></td>
-<td style="width:80%;padding:0" valign="top">
-<?php include 'delovi/desnoudruzenjaLista.php';?>
-</td>
-<td style="width:1%;"></td>
-</tr>
-</table>
-</td>
-<td style="width:10%;"></td>
-</tr>
-
-<?php include 'delovi/footer.php';?>
-
-</table>
-</body>
-</html>

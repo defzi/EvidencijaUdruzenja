@@ -1,4 +1,4 @@
-/* CSS Document - Evidencija Udruzenja */
+/*Style dokument*/ 
 
 body{
 	vertical-align: middle;
@@ -18,15 +18,13 @@ table.no-spacing {
 }
 
 .banner{
-	background-image: url('../images/Zrenjanin.jpg');
-	background-size: cover;
-	background-position: center;
-	background-color: #003366;
-	padding:40px 0;
+	background-color:#003366;
+	padding:20px 0;
 }
 .tp_txtplay{ font:bold 32px "Trebuchet MS"; color:#FFFFFF; text-decoration:none;}
 .tp_txtcss{ font:bold 18px "Trebuchet MS"; color:#B7F3FE; }
 
+/* Sklonio sam boju jer cini stranicu nepreglednom */
 a:link { text-decoration:none; }
 a:visited { text-decoration:none; }
 a:hover { text-decoration:underline; background-color: #B7F3FE; }

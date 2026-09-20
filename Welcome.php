@@ -27,7 +27,21 @@ if (!isset($korisnik))
 <tr>
 <td style="width:1%;"></td>
 <td style="width:20%;padding:0" valign="top">
-<?php include 'delovi/menilevoadmin.php';?>
+<?php
+
+if (
+isset($_SESSION["status"])
+&& $_SESSION["status"] == "admin"
+)
+{
+include 'delovi/menilevoadmin.php';
+}
+else
+{
+include 'delovi/menilevo.php';
+}
+
+?>
 </td>
 <td style="width:2%;"></td>
 <td style="padding:0" valign="top">

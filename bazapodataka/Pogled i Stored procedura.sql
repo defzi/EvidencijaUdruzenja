@@ -1,3 +1,5 @@
+/* Pogled i stored procedura */
+
 USE `EvidencijaUdruzenja`;
 
 DROP VIEW IF EXISTS `PodaciUdruzenja`;
@@ -25,8 +27,8 @@ CREATE PROCEDURE `DodajUdruzenje` (
 	IN inIDKategorije INT
 )
 BEGIN
-INSERT INTO `Udruzenja` (`NazivUdruzenja`, `Adresa`, `Grad`, `DatumOsnivanja`, `IDKategorije`)
-VALUES (inNazivUdruzenja, inAdresa, inGrad, inDatumOsnivanja, inIDKategorije);
-END 
-$$
+	INSERT INTO `Udruzenja` (`NazivUdruzenja`, `Adresa`, `Grad`, `DatumOsnivanja`, `IDKategorije`)
+	VALUES (inNazivUdruzenja, inAdresa, inGrad, inDatumOsnivanja, inIDKategorije);
+END $$
+
 DELIMITER ;

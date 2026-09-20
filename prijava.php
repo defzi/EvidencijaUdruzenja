@@ -18,7 +18,7 @@
 <tr>
 <td style="width:1%;"></td>
 <td style="width:20%;padding:0" valign="top">
-<?php include 'delovi/menilevo.php';?>
+<?php include 'delovi/menilevofinal.php';?>
 </td>
 <td style="width:2%;"></td>
 <td style="padding:0" valign="top">

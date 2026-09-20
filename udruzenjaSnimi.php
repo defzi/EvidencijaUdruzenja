@@ -1,43 +1,130 @@
 <?php
+
 session_start();
-$korisnik=$_SESSION["korisnik"];
-if (!isset($korisnik))
+
+if (
+    !isset($_SESSION["korisnik"])
+    || !isset($_SESSION["status"])
+)
 {
-	header('Location:index.php');
+    header('Location:index.php');
+    exit();
 }
 
-$Naziv=$_POST['naziv'];
-$Adresa=$_POST['adresa'];
-$Grad=$_POST['grad'];
-$Datum=$_POST['datumOsnivanja'];
-$IDKategorije=$_POST['kategorija'];
+if ($_SESSION["status"] != "admin")
+{
+    header('Location:udruzenjaLista.php');
+    exit();
+}
 
-require "klase/BaznaKonekcija.php";
-require "klase/BaznaTabela.php";
-$KonekcijaObject = new Konekcija('klase/BaznaParametriKonekcije.xml');
+
+// Provera prijavljenog korisnika
+
+if (!isset($_SESSION["korisnik"]))
+{
+    header('Location:index.php');
+    exit();
+}
+
+
+// Preuzimamo podatke s formi
+
+$Naziv = isset($_POST['naziv'])
+    ? $_POST['naziv']
+    : '';
+
+$Adresa = isset($_POST['adresa'])
+    ? $_POST['adresa']
+    : '';
+
+$Grad = isset($_POST['grad'])
+    ? $_POST['grad']
+    : '';
+
+$Datum = isset($_POST['datumOsnivanja'])
+    ? $_POST['datumOsnivanja']
+    : '';
+
+$IDKategorije = isset($_POST['kategorija'])
+    ? $_POST['kategorija']
+    : '';
+
+
+// Potrebne klase se prikljucuju ovde
+
+require_once "klase/BaznaKonekcija.php";
+require_once "klase/BaznaTabela.php";
+require_once "klase/DBUdruzenja.php";
+require_once "klase/UdruzenjaLogika.php";
+
+
+// Bazna konekcija
+
+$KonekcijaObject = new Konekcija(
+    'klase/BaznaParametriKonekcije.xml'
+);
+
 $KonekcijaObject->connect();
 
-$UtvrdjenaGreska=null;
+$UtvrdjenaGreska = null;
+
+
+// Provera konekcije
 
 if ($KonekcijaObject->konekcijaDB)
 {
-	require('klase/DBUdruzenja.php');
-	$UdruzenjaObject = new DBUdruzenja($KonekcijaObject, 'Udruzenja');
-	$UdruzenjaObject->NazivUdruzenja=$Naziv;
-	$UdruzenjaObject->Adresa=$Adresa;
-	$UdruzenjaObject->Grad=$Grad;
-	$UdruzenjaObject->DatumOsnivanja=$Datum;
-	$UdruzenjaObject->IDKategorije=$IDKategorije;
-	$UtvrdjenaGreska=$UdruzenjaObject->DodajNovoUdruzenje();
-}
+    // data sloj
+    $UdruzenjaObject = new DBUdruzenja(
+        $KonekcijaObject,
+        'Udruzenja'
+    );
 
-$KonekcijaObject->disconnect();
 
-if ($UtvrdjenaGreska!=null) {
-	echo "Greška: $UtvrdjenaGreska";
+    try
+    {
+        // Poslovna logika
+        $UdruzenjaLogika = new UdruzenjaLogika(
+            $UdruzenjaObject
+        );
+
+
+        // Validiranje unosa u bazu
+        $UtvrdjenaGreska =
+            $UdruzenjaLogika->DodajUdruzenje(
+                $Naziv,
+                $Adresa,
+                $Grad,
+                $Datum,
+                $IDKategorije
+            );
+    }
+    catch (Exception $e)
+    {
+        $UtvrdjenaGreska = $e->getMessage();
+    }
 }
 else
 {
-	header('Location:udruzenjaLista.php');
+    $UtvrdjenaGreska =
+        "Nije moguće uspostaviti konekciju sa bazom podataka.";
 }
+
+
+// Zatvaranje konekcije
+
+$KonekcijaObject->disconnect();
+
+
+// Proveravanje rezultata
+
+if ($UtvrdjenaGreska != null)
+{
+    echo "Greška: " . $UtvrdjenaGreska;
+}
+else
+{
+    header('Location:udruzenjaLista.php');
+    exit();
+}
+
 ?>
