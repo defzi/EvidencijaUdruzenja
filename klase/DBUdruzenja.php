@@ -39,5 +39,78 @@ public function IzmeniUdruzenje($stariID, $NazivUdruzenja, $Adresa, $Grad, $Datu
 	return $this->IzvrsiAktivanSQLUpit($SQL);
 }
 
+public function PostojiUdruzenjeSaNazivom( $Naziv, $IDZaIzuzimanje = null)
+{
+    $Naziv = mysqli_real_escape_string(
+        $this->veza,
+        trim($Naziv)
+    );
+
+    $SQL =
+        "SELECT COUNT(*) " .
+        "FROM `" .
+        $this->NazivBazePodataka .
+        "`.`Udruzenja` " .
+        "WHERE NazivUdruzenja='" .
+        $Naziv .
+        "'";
+
+
+    // Kod izmene trenutni zapis ne sme da bude pronađen kao duplikat samog sebe.
+
+    if (
+        $IDZaIzuzimanje !== null
+        && is_numeric($IDZaIzuzimanje)
+    )
+    {
+        $SQL .=
+            " AND IDUdruzenja<>" .
+            (int)$IDZaIzuzimanje;
+    }
+
+
+    $rezultat = mysqli_query(
+        $this->veza,
+        $SQL
+    );
+
+    if (!$rezultat)
+    {
+        return false;
+    }
+
+    $red = mysqli_fetch_row($rezultat);
+
+    return ((int)$red[0] > 0);
+}
+
+
+public function PostojiKategorija($IDKategorije)
+{
+    $IDKategorije = (int)$IDKategorije;
+
+    $SQL =
+        "SELECT COUNT(*) " .
+        "FROM `" .
+        $this->NazivBazePodataka .
+        "`.`Kategorija` " .
+        "WHERE IDKategorije=" .
+        $IDKategorije;
+
+
+    $rezultat = mysqli_query(
+        $this->veza,
+        $SQL
+    );
+
+    if (!$rezultat)
+    {
+        return false;
+    }
+
+    $red = mysqli_fetch_row($rezultat);
+
+    return ((int)$red[0] > 0);
+}
 }
 ?>

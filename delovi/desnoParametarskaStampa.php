@@ -7,7 +7,7 @@
 <b><font face="Trebuchet MS" color="darkblue" size="4px">PARAMETARSKA ŠTAMPA</font></b><br/><br/>
 
 <form action="StampaPodatakaOUdruzenjima.php" method="POST">
-Grad: <input type="text" name="imeFilter" />
+Grad: <input type="text" name="imeFilter" required />
 <input type="submit" name="stampaj" value="ŠTAMPAJ" />
 </form>
 

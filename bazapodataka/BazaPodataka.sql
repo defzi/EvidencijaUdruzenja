@@ -15,14 +15,19 @@ CREATE TABLE `Kategorija` (
 /* Tabela udruzenja */
 
 CREATE TABLE `Udruzenja` (
-	`IDUdruzenja`	INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	`NazivUdruzenja` VARCHAR(60) NOT NULL,
-	`Adresa`		VARCHAR(60) NOT NULL,
-	`Grad`			VARCHAR(30) NOT NULL,
-	`DatumOsnivanja` DATETIME,
-	`IDKategorije`	INT NOT NULL,
-	CONSTRAINT `FK_pripada` FOREIGN KEY (`IDKategorije`)
-		REFERENCES `Kategorija` (`IDKategorije`)
+    `IDUdruzenja` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `NazivUdruzenja` VARCHAR(60) NOT NULL,
+    `Adresa` VARCHAR(60) NOT NULL,
+    `Grad` VARCHAR(30) NOT NULL,
+    `DatumOsnivanja` DATETIME,
+    `IDKategorije` INT NOT NULL,
+
+    CONSTRAINT `UQ_Udruzenja_Naziv`
+        UNIQUE (`NazivUdruzenja`),
+
+    CONSTRAINT `FK_pripada`
+        FOREIGN KEY (`IDKategorije`)
+        REFERENCES `Kategorija` (`IDKategorije`)
 );
 
 /* Korisnik */

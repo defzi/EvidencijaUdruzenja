@@ -19,7 +19,7 @@ $korisnik = $_SESSION["korisnik"];
 require_once "klase/BaznaKonekcija.php";
 require_once "klase/BaznaTabela.php";
 require_once "klase/DBUdruzenjaV.php";
-require_once "klase/UdruzenjaLogika.php";
+require_once "klase/ValidacijaUdruzenja.php";
 
 
 // Povezivanje s bazom
@@ -31,7 +31,7 @@ $KonekcijaObject = new Konekcija(
 $KonekcijaObject->connect();
 
 
-// Početne vrednosi
+// Početne vrednosti
 
 $filter = null;
 $greskaFiltera = null;
@@ -51,90 +51,68 @@ if ($KonekcijaObject->konekcijaDB)
     );
 
 
-    try
+ try
+{
+    // Pritisnuto je dugme za filtriranje
+
+    if (isset($_GET['filtriraj']))
     {
+        $filter = isset($_GET['filter'])
+            ? trim($_GET['filter'])
+            : '';
 
-        // Kreiranje logike preko poslovne logike
+        // Osnovna validacija filtera
 
-        $UdruzenjaLogika = new UdruzenjaLogika(
-            $UdruzenjaViewObject
-        );
-
-
-        // Kriterijum filtera iz XML fajla
-
-        $poljeFiltera =
-            $UdruzenjaLogika
-                ->DajPoljeFiltera();
+        $greskaFiltera =
+            ValidacijaUdruzenja::ProveriFilter(
+                $filter
+            );
 
 
-        // Pritisnuto je dugme za filtriranje
+        // Ako filter nije ispravan, prikazuju se svi podaci
 
-        if (isset($_GET['filtriraj']))
+        if ($greskaFiltera != null)
         {
-            $filter = isset($_GET['filter'])
-                ? trim($_GET['filter'])
-                : '';
+            $filter = null;
 
-            // Provera filtera preko logike
-
-            $greskaFiltera =
-                $UdruzenjaLogika
-                    ->ProveriFilter(
-                        $filter
-                    );
-
-
-            // Ako nije ispravan filter, prikazujemo sve
-
-            if ($greskaFiltera != null)
-            {
-                $filter = null;
-
-                $UdruzenjaViewObject
-                    ->DajSvePodatkeOUdruzenjima(
-                        null,
-                        $poljeFiltera
-                    );
-            }
-
-            // U slučaju ako je filter ispravljen
-
-            else
-            {
-                $UdruzenjaViewObject
-                    ->DajSvePodatkeOUdruzenjima(
-                        $filter,
-                        $poljeFiltera
-                    );
-            }
-        }
-
-
-        // Ako nema filtriranja, prikazuju se svi podaci
-
-        else
-        {
             $UdruzenjaViewObject
                 ->DajSvePodatkeOUdruzenjima(
                     null,
                     $poljeFiltera
                 );
         }
+        else
+        {
+            $UdruzenjaViewObject
+                ->DajSvePodatkeOUdruzenjima(
+                    $filter,
+                    $poljeFiltera
+                );
+        }
     }
-    catch (Exception $e)
+
+    // Ako nema filtriranja, prikazuju se svi podaci
+
+    else
     {
-        $greskaFiltera =
-            $e->getMessage();
-
-        // Ako se poslovna pravila ne mogu učitati, pokušavamo da prikažemo sve podatke.
-
         $UdruzenjaViewObject
             ->DajSvePodatkeOUdruzenjima(
                 null,
-                "Grad"
+                $poljeFiltera
             );
     }
+}
+catch (Exception $e)
+{
+    $greskaFiltera =
+        $e->getMessage();
+
+    $UdruzenjaViewObject
+        ->DajSvePodatkeOUdruzenjima(
+            null,
+            $poljeFiltera
+            );
+}
 }
 else
 {

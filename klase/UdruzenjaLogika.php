@@ -4,22 +4,15 @@ class UdruzenjaLogika
 {
     private $UdruzenjaDB;
 
-    private $NazivMinDuzina;
-    private $NazivMaxDuzina;
-
-    private $AdresaMinDuzina;
-    private $AdresaMaxDuzina;
-
-    private $GradMinDuzina;
-    private $GradMaxDuzina;
-
-    private $DozvoliBuduciDatum;
-
-    private $PoljeFiltera;
-    private $MinimalnaDuzinaFiltera;
+    private $NazivMoraBitiJedinstven;
+    private $DozvoliBuduciDatumOsnivanja;
+    private $KategorijaMoraPostojati;
 
 
-    public function __construct($UdruzenjaDB, $PutanjaParametara = null)
+    public function __construct(
+        $UdruzenjaDB,
+        $PutanjaParametara = null
+    )
     {
         $this->UdruzenjaDB = $UdruzenjaDB;
 
@@ -28,6 +21,7 @@ class UdruzenjaLogika
             $PutanjaParametara =
                 __DIR__ . '/PoslovnaPravila.xml';
         }
+
 
         $xml = simplexml_load_file(
             $PutanjaParametara
@@ -41,185 +35,81 @@ class UdruzenjaLogika
         }
 
 
-        // Naziv udruženja
-
-        $this->NazivMinDuzina =
-            (int)$xml->udruzenje->nazivMinDuzina;
-
-        $this->NazivMaxDuzina =
-            (int)$xml->udruzenje->nazivMaxDuzina;
-
-
-
-        $this->AdresaMinDuzina =
-            (int)$xml->udruzenje->adresaMinDuzina;
-
-        $this->AdresaMaxDuzina =
-            (int)$xml->udruzenje->adresaMaxDuzina;
-
-
-
-        $this->GradMinDuzina =
-            (int)$xml->udruzenje->gradMinDuzina;
-
-        $this->GradMaxDuzina =
-            (int)$xml->udruzenje->gradMaxDuzina;
-
-
-
-        $this->DozvoliBuduciDatum =
+        $this->NazivMoraBitiJedinstven =
             strtoupper(
                 trim(
                     (string)$xml
                         ->udruzenje
-                        ->dozvoliBuduciDatum
+                        ->nazivMoraBitiJedinstven
                 )
             );
 
 
-        // Parametar pretrage
-
-        $this->PoljeFiltera =
-            trim(
-                (string)$xml
-                    ->pretraga
-                    ->poljeFiltera
+        $this->DozvoliBuduciDatumOsnivanja =
+            strtoupper(
+                trim(
+                    (string)$xml
+                        ->udruzenje
+                        ->dozvoliBuduciDatumOsnivanja
+                )
             );
 
-        $this->MinimalnaDuzinaFiltera =
-            (int)$xml
-                ->pretraga
-                ->minimalnaDuzinaFiltera;
+
+        $this->KategorijaMoraPostojati =
+            strtoupper(
+                trim(
+                    (string)$xml
+                        ->udruzenje
+                        ->kategorijaMoraPostojati
+                )
+            );
     }
 
 
-    public function ProveriPodatke(
+    private function ProveriPoslovnaPravila(
         $Naziv,
-        $Adresa,
-        $Grad,
         $Datum,
-        $IDKategorije
+        $IDKategorije,
+        $IDUdruzenja = null
     )
     {
-        $Naziv = trim($Naziv);
-        $Adresa = trim($Adresa);
-        $Grad = trim($Grad);
-
-
-        // Proveravanje naziva
-
-        if (empty($Naziv))
-        {
-            return "Naziv udruženja je obavezan.";
-        }
+        // POSLOVNO PRAVILO 1: Naziv udruženja mora biti jedinstven.
 
         if (
-            strlen($Naziv)
-            < $this->NazivMinDuzina
+            $this->NazivMoraBitiJedinstven == "DA"
+            && $this->UdruzenjaDB
+                ->PostojiUdruzenjeSaNazivom(
+                    $Naziv,
+                    $IDUdruzenja
+                )
         )
         {
-            return "Naziv udruženja mora imati najmanje "
-                . $this->NazivMinDuzina
-                . " karaktera.";
+            return "Udruženje sa unetim nazivom već postoji.";
         }
+
+
+        // POSLOVNO PRAVILO 2: Udruženje ne može biti osnovano u budućnosti.
 
         if (
-            strlen($Naziv)
-            > $this->NazivMaxDuzina
-        )
-        {
-            return "Naziv udruženja može imati najviše "
-                . $this->NazivMaxDuzina
-                . " karaktera.";
-        }
-
-
-        // Proveravanje adrese
-
-        if (empty($Adresa))
-        {
-            return "Adresa je obavezna.";
-        }
-
-        if (
-            strlen($Adresa)
-            < $this->AdresaMinDuzina
-        )
-        {
-            return "Adresa mora imati najmanje "
-                . $this->AdresaMinDuzina
-                . " karaktera.";
-        }
-
-        if (
-            strlen($Adresa)
-            > $this->AdresaMaxDuzina
-        )
-        {
-            return "Adresa može imati najviše "
-                . $this->AdresaMaxDuzina
-                . " karaktera.";
-        }
-
-
-        // Proveravanje grada
-
-        if (empty($Grad))
-        {
-            return "Grad je obavezan.";
-        }
-
-        if (!preg_match('/^[\p{L}\s\-]+$/u', $Grad))
-        {
-            return "Grad može sadržati samo slova.";
-        }
-
-        if (
-            strlen($Grad)
-            < $this->GradMinDuzina
-        )
-        {
-            return "Grad mora imati najmanje "
-                . $this->GradMinDuzina
-                . " karaktera.";
-        }
-
-        if (
-            strlen($Grad)
-            > $this->GradMaxDuzina
-        )
-        {
-            return "Grad može imati najviše "
-                . $this->GradMaxDuzina
-                . " karaktera.";
-        }
-
-
-        // Proveravanje datuma
-
-        if (empty($Datum))
-        {
-            return "Datum osnivanja je obavezan.";
-        }
-
-        if (
-            $this->DozvoliBuduciDatum == "NE"
+            $this->DozvoliBuduciDatumOsnivanja == "NE"
             && $Datum > date("Y-m-d")
         )
         {
-            return "Datum osnivanja ne može biti u budućnosti.";
+            return "Nije moguće evidentirati udruženje čiji je datum osnivanja u budućnosti.";
         }
 
 
-        // Proveravanje kategorije
+        // POSLOVNO PRAVILO 3: Udruženje mora pripadati postojećoj kategoriji.
 
         if (
-            empty($IDKategorije)
-            || !is_numeric($IDKategorije)
-            || (int)$IDKategorije <= 0
+            $this->KategorijaMoraPostojati == "DA"
+            && !$this->UdruzenjaDB
+                ->PostojiKategorija(
+                    $IDKategorije
+                )
         )
         {
-            return "Kategorija mora biti izabrana.";
+            return "Izabrana kategorija ne postoji u evidenciji.";
         }
 
 
@@ -236,12 +126,10 @@ class UdruzenjaLogika
     )
     {
         $greska =
-            $this->ProveriPodatke(
-                $Naziv,
-                $Adresa,
-                $Grad,
+            $this->ProveriPoslovnaPravila(
+                trim($Naziv),
                 $Datum,
-                $IDKategorije
+                (int)$IDKategorije
             );
 
         if ($greska != null)
@@ -281,8 +169,6 @@ class UdruzenjaLogika
         $IDKategorije
     )
     {
-        // Provera identifikacije
-
         if (
             !is_numeric($ID)
             || (int)$ID <= 0
@@ -292,15 +178,12 @@ class UdruzenjaLogika
         }
 
 
-        // Provera ostalih podataka
-
         $greska =
-            $this->ProveriPodatke(
-                $Naziv,
-                $Adresa,
-                $Grad,
+            $this->ProveriPoslovnaPravila(
+                trim($Naziv),
                 $Datum,
-                $IDKategorije
+                (int)$IDKategorije,
+                (int)$ID
             );
 
         if ($greska != null)
@@ -312,50 +195,13 @@ class UdruzenjaLogika
         return $this
             ->UdruzenjaDB
             ->IzmeniUdruzenje(
-            (int)$ID,
-            trim($Naziv),
-            trim($Adresa),
-            trim($Grad),
-            $Datum,
-            (int)$IDKategorije
+                (int)$ID,
+                trim($Naziv),
+                trim($Adresa),
+                trim($Grad),
+                $Datum,
+                (int)$IDKategorije
             );
-    }
-
-
-    // Provera kriterijuma pretrage
-
-    public function ProveriFilter($Filter)
-    {
-        $Filter = trim($Filter);
-
-
-        // Prazan filter je dozvoljen, u tom slučaju prikazuju se svi podaci
-
-
-        if ($Filter == "")
-        {
-            return null;
-        }
-
-        if (
-            strlen($Filter)
-            < $this->MinimalnaDuzinaFiltera
-        )
-        {
-            return "Filter mora imati najmanje "
-                . $this->MinimalnaDuzinaFiltera
-                . " karaktera.";
-        }
-
-        return null;
-    }
-
-
-    // Vraćanje kriterijuma pretrage
-
-    public function DajPoljeFiltera()
-    {
-        return $this->PoljeFiltera;
     }
 }
 

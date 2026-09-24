@@ -57,6 +57,7 @@ require_once "klase/BaznaKonekcija.php";
 require_once "klase/BaznaTabela.php";
 require_once "klase/DBUdruzenja.php";
 require_once "klase/UdruzenjaLogika.php";
+require_once "klase/ValidacijaUdruzenja.php";
 
 
 // Konekcija sa bazom
@@ -81,13 +82,25 @@ if ($KonekcijaObject->konekcijaDB)
     );
 
     try
-    {
-        // Poslovna logika
-        $UdruzenjaLogika = new UdruzenjaLogika(
-            $UdruzenjaObject
+{
+    // Osnovna validacija korisničkog unosa
+    $UtvrdjenaGreska =
+        ValidacijaUdruzenja::ProveriPodatke(
+            $Naziv,
+            $Adresa,
+            $Grad,
+            $Datum,
+            $IDKategorije
         );
 
-        // Validiranje i izmena podataka u bazi
+    // Poslovna logika se izvršava samo ako je osnovna validacija uspešna
+    if ($UtvrdjenaGreska == null)
+    {
+        $UdruzenjaLogika =
+            new UdruzenjaLogika(
+                $UdruzenjaObject
+            );
+
         $UtvrdjenaGreska =
             $UdruzenjaLogika->IzmeniUdruzenje(
                 $id,
@@ -98,10 +111,12 @@ if ($KonekcijaObject->konekcijaDB)
                 $IDKategorije
             );
     }
-    catch (Exception $e)
-    {
-        $UtvrdjenaGreska = $e->getMessage();
-    }
+}
+catch (Exception $e)
+{
+    $UtvrdjenaGreska =
+        $e->getMessage();
+}
 }
 else
 {

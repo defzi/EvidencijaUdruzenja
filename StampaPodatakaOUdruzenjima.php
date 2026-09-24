@@ -8,12 +8,14 @@ if (!isset($_SESSION["korisnik"]))
     exit();
 }
 
-$FilterZaStampu = trim($_POST['imeFilter']);
+$FilterZaStampu = isset($_POST['imeFilter'])
+    ? trim($_POST['imeFilter'])
+    : '';
 
 require_once "klase/BaznaKonekcija.php";
 require_once "klase/BaznaTabela.php";
 require_once "klase/DBUdruzenjaV.php";
-require_once "klase/UdruzenjaLogika.php";
+require_once "klase/ValidacijaUdruzenja.php";
 
 $KonekcijaObject = new Konekcija(
     "klase/BaznaParametriKonekcije.xml"
@@ -23,6 +25,8 @@ $KonekcijaObject->connect();
 
 $KolekcijaZapisaUdruzenja = array();
 $UkupanBrojZapisaUdruzenja = 0;
+$greskaFiltera = null;
+$poljeFiltera = "Grad";
 
 if ($KonekcijaObject->konekcijaDB)
 {
@@ -33,12 +37,10 @@ if ($KonekcijaObject->konekcijaDB)
 
     try
     {
-        $UdruzenjaLogika = new UdruzenjaLogika(
-            $UdruzenjaObject
-        );
+        // Osnovna validacija filtera
 
         $greskaFiltera =
-            $UdruzenjaLogika->ProveriFilter(
+            ValidacijaUdruzenja::ProveriFilter(
                 $FilterZaStampu
             );
 
@@ -54,8 +56,7 @@ if ($KonekcijaObject->konekcijaDB)
             exit;
         }
 
-        $poljeFiltera =
-            $UdruzenjaLogika->DajPoljeFiltera();
+        // Parametarska štampa prema gradu
 
         $UdruzenjaObject
             ->DajSvePodatkeOUdruzenjima(
@@ -88,93 +89,3 @@ else
 }
 
 ?>
-
-<!DOCTYPE html>
-
-<html lang="sr-RS">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <title>Evidencija Udruženja</title>
-
-    <link
-        rel="stylesheet"
-        type="text/css"
-        href="css/style.css"
-        media="screen"
-    >
-
-</head>
-
-<body>
-
-<table
-    class="no-spacing"
-    style="width:100%; padding:0"
-    align="center"
-    cellspacing="0"
-    cellpadding="0"
-    border="0"
->
-
-<?php
-include 'delovi/zaglavljestampa.php';
-?>
-
-<tr>
-
-    <td style="width:10%;"></td>
-
-    <td
-        align="center"
-        valign="middle"
-        style="width:80%; padding:0"
-    >
-
-        <table
-            style="width:100%; padding:0"
-            align="center"
-            cellspacing="0"
-            cellpadding="0"
-            border="0"
-            bgcolor="#FFFFFF"
-        >
-
-            <tr>
-
-                <td style="width:1%;"></td>
-
-                <td
-                    style="width:80%; padding:0"
-                    valign="top"
-                >
-
-                    <?php
-                    include 'delovi/desnostampaoudruzenjima.php';
-                    ?>
-
-                </td>
-
-                <td style="width:1%;"></td>
-
-            </tr>
-
-        </table>
-
-    </td>
-
-    <td style="width:10%;"></td>
-
-</tr>
-
-<?php
-include 'delovi/footerstampa.php';
-?>
-
-</table>
-
-</body>
-
-</html>

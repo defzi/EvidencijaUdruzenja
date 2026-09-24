@@ -23,7 +23,7 @@ CREATE PROCEDURE `DodajUdruzenje` (
 	IN inNazivUdruzenja VARCHAR(60),
 	IN inAdresa VARCHAR(60),
 	IN inGrad VARCHAR(30),
-	IN inDatumOsnivanja DATE,
+	IN inDatumOsnivanja DATETIME,
 	IN inIDKategorije INT
 )
 BEGIN

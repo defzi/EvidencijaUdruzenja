@@ -3,21 +3,16 @@
 <poslovnaPravila>
 
     <udruzenje>
-    <nazivMinDuzina>2</nazivMinDuzina>
-    <nazivMaxDuzina>60</nazivMaxDuzina>
 
-    <adresaMinDuzina>3</adresaMinDuzina>
-    <adresaMaxDuzina>60</adresaMaxDuzina>
+        <!-- Udruženje sa istim nazivom ne može biti evidentirano dva puta -->
+        <nazivMoraBitiJedinstven>DA</nazivMoraBitiJedinstven>
 
-    <gradMinDuzina>2</gradMinDuzina>
-    <gradMaxDuzina>30</gradMaxDuzina>
+        <!-- Nije moguće evidentirati udruženje koje još nije osnovano -->
+        <dozvoliBuduciDatumOsnivanja>NE</dozvoliBuduciDatumOsnivanja>
 
-    <dozvoliBuduciDatum>NE</dozvoliBuduciDatum>
+        <!-- Udruženje mora pripadati postojećoj kategoriji -->
+        <kategorijaMoraPostojati>DA</kategorijaMoraPostojati>
+
     </udruzenje>
-
-    <pretraga>
-    <poljeFiltera>Grad</poljeFiltera>
-    <minimalnaDuzinaFiltera>2</minimalnaDuzinaFiltera>
-    </pretraga>
 
 </poslovnaPravila>

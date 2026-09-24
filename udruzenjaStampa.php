@@ -8,12 +8,11 @@ if (!isset($_SESSION["korisnik"]))
     exit();
 }
 
-$korisnik = $_SESSION["korisnik"];
-session_unset();
-session_destroy();
+$korisnik = $_SESSION["korisnik"];	
 
 require "klase/BaznaKonekcija.php";
 require "klase/BaznaTabela.php";
+
 $KonekcijaObject = new Konekcija('klase/BaznaParametriKonekcije.xml');
 $KonekcijaObject->connect();
 if ($KonekcijaObject->konekcijaDB)
